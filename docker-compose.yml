@@ -18,7 +18,7 @@ services:
         window: 1m
       resources:
         limits:
-          cpus: '2'
+          cpus: '1'
           memory: 128M
         reservations:
           memory: 103M
@@ -44,7 +44,7 @@ services:
         window: 2m
       resources:
         limits:
-          cpus: '4'
+          cpus: '2'
           memory: 128M
         reservations:
           memory: 103M
