@@ -1,0 +1,63 @@
+version: '3.7'
+
+services:
+  agent:
+    image: portainer/agent
+    environment:
+      AGENT_CLUSTER_ADDR: tasks.{{.Service.Name}}
+      AGENT_PORT: 9001
+      LOG_LEVEL: error
+    networks:
+      - portainer-net
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      mode: global
+      restart_policy:
+        delay: 10s
+        window: 1m
+      resources:
+        limits:
+          cpus: '2'
+          memory: 128M
+        reservations:
+          memory: 103M
+
+  portainer:
+    image: portainer/portainer:${IMAGE_TAG:-latest}
+    command: -H tcp://tasks.portainer_agent:9001 --tlsskipverify
+    networks:
+      - portainer-net
+      - traefik-net
+    volumes:
+      - portainer-vol:/data
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        traefik.port: "9000"
+        traefik.docker.network: traefik-net
+        traefik.frontend.rule: Host:portainer.${PUBLIC_HOSTNAME}
+        traefik.backend: portainer
+      restart_policy:
+        delay: 30s
+        window: 2m
+      resources:
+        limits:
+          cpus: '4'
+          memory: 128M
+        reservations:
+          memory: 103M
+
+networks:
+  portainer-net:
+    name: portainer-net
+    driver: overlay
+    attachable: true
+
+  traefik-net:
+    external: true
+
+volumes:
+  portainer-vol:
+    name: ${PORTAINER_VOL_NAME:-portainer-vol}
