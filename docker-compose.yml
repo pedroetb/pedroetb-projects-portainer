@@ -14,8 +14,8 @@ services:
     deploy:
       mode: global
       restart_policy:
-        delay: 10s
-        window: 1m
+        delay: ${AGENT_RESTART_POLICY_DELAY}
+        window: ${AGENT_RESTART_POLICY_WINDOW}
       resources:
         limits:
           cpus: "${AGENT_LIMITS_CPUS}"
@@ -33,14 +33,14 @@ services:
       - portainer-vol:/data
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: ${PORTAINER_REPLICAS}
       labels:
         traefik.frontend.rule: Host:${SUBDOMAIN}.${PUBLIC_HOSTNAME}
         traefik.backend: portainer
         traefik.port: '9000'
       restart_policy:
-        delay: 30s
-        window: 2m
+        delay: ${PORTAINER_RESTART_POLICY_DELAY}
+        window: ${PORTAINER_RESTART_POLICY_WINDOW}
       resources:
         limits:
           cpus: "${PORTAINER_LIMITS_CPUS}"
