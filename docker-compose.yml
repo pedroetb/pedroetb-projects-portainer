@@ -2,11 +2,11 @@ version: '3.7'
 
 services:
   agent:
-    image: portainer/agent
+    image: portainer/agent:${AGENT_IMAGE_TAG:-latest}
     environment:
-      AGENT_CLUSTER_ADDR: tasks.{{.Service.Name}}
-      AGENT_PORT: 9001
-      LOG_LEVEL: error
+      - LOG_LEVEL
+      - AGENT_PORT
+      - AGENT_CLUSTER_ADDR=tasks.{{.Service.Name}}
     networks:
       - portainer-net
     volumes:
@@ -18,14 +18,14 @@ services:
         window: 1m
       resources:
         limits:
-          cpus: '1'
-          memory: 128M
+          cpus: "${AGENT_LIMITS_CPUS}"
+          memory: ${AGENT_LIMITS_MEMORY}
         reservations:
-          memory: 103M
+          memory: ${AGENT_RESERVATIONS_MEMORY}
 
   portainer:
-    image: portainer/portainer:${IMAGE_TAG:-latest}
-    command: -H tcp://tasks.portainer_agent:9001 --tlsskipverify
+    image: portainer/portainer:${PORTAINER_IMAGE_TAG:-latest}
+    command: -H tcp://tasks.${STACK_NAME:-portainer}_agent:${AGENT_PORT} --tlsskipverify
     networks:
       - portainer-net
       - traefik-net
@@ -35,27 +35,28 @@ services:
       mode: replicated
       replicas: 1
       labels:
-        traefik.port: "9000"
         traefik.docker.network: traefik-net
-        traefik.frontend.rule: Host:portainer.${PUBLIC_HOSTNAME}
+        traefik.frontend.rule: Host:${SUBDOMAIN}.${PUBLIC_HOSTNAME}
         traefik.backend: portainer
+        traefik.port: '9000'
       restart_policy:
         delay: 30s
         window: 2m
       resources:
         limits:
-          cpus: '2'
-          memory: 128M
+          cpus: "${PORTAINER_LIMITS_CPUS}"
+          memory: ${PORTAINER_LIMITS_MEMORY}
         reservations:
-          memory: 103M
+          memory: ${PORTAINER_RESERVATIONS_MEMORY}
 
 networks:
   portainer-net:
-    name: portainer-net
+    name: ${PORTAINER_NET_NAME:-portainer-net}
     driver: overlay
-    attachable: true
+    attachable: ${PORTAINER_NET_ATTACHABLE:-true}
 
   traefik-net:
+    name: ${TRAEFIK_NET_NAME:-traefik-net}
     external: true
 
 volumes:
