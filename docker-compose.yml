@@ -35,7 +35,7 @@ services:
       mode: replicated
       replicas: ${PORTAINER_REPLICAS}
       labels:
-        traefik.frontend.rule: Host:${SUBDOMAIN}.${PUBLIC_HOSTNAME}
+        traefik.frontend.rule: Host:${PORTAINER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
         traefik.backend: portainer
         traefik.port: '9000'
       restart_policy:
