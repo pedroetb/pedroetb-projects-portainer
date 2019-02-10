@@ -11,18 +11,18 @@ services:
       - portainer-net
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${AGENT_DOCKER_VOLUMES_PATH}:/var/lib/docker/volumes
+      - ${AGENT_DOCKER_VOLUMES_PATH:-/var/lib/docker/volumes}:/var/lib/docker/volumes
     deploy:
       mode: global
       restart_policy:
-        delay: ${AGENT_RESTART_POLICY_DELAY}
-        window: ${AGENT_RESTART_POLICY_WINDOW}
+        delay: ${AGENT_RESTART_POLICY_DELAY:-3s}
+        window: ${AGENT_RESTART_POLICY_WINDOW:-30s}
       resources:
         limits:
-          cpus: "${AGENT_LIMITS_CPUS}"
-          memory: ${AGENT_LIMITS_MEMORY}
+          cpus: "${AGENT_LIMITS_CPUS:-1}"
+          memory: ${AGENT_LIMITS_MEMORY:-32M}
         reservations:
-          memory: ${AGENT_RESERVATIONS_MEMORY}
+          memory: ${AGENT_RESERVATIONS_MEMORY:-16M}
 
   portainer:
     image: portainer/portainer:${PORTAINER_IMAGE_TAG:-latest}
@@ -34,23 +34,23 @@ services:
       - portainer-vol:/data
     deploy:
       mode: replicated
-      replicas: ${PORTAINER_REPLICAS}
+      replicas: ${PORTAINER_REPLICAS:-1}
       labels:
         traefik.frontend.rule: Host:${PORTAINER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
         traefik.backend: portainer
         traefik.port: '9000'
       restart_policy:
-        delay: ${PORTAINER_RESTART_POLICY_DELAY}
-        window: ${PORTAINER_RESTART_POLICY_WINDOW}
+        delay: ${PORTAINER_RESTART_POLICY_DELAY:-10s}
+        window: ${PORTAINER_RESTART_POLICY_WINDOW:-1m}
       placement:
         constraints:
-          - ${PORTAINER_PLACEMENT_CONSTRAINT_NAME} == ${PORTAINER_PLACEMENT_CONSTRAINT_VALUE}
+          - ${PORTAINER_PLACEMENT_CONSTRAINT:-node.hostname == node}
       resources:
         limits:
-          cpus: "${PORTAINER_LIMITS_CPUS}"
-          memory: ${PORTAINER_LIMITS_MEMORY}
+          cpus: "${PORTAINER_LIMITS_CPUS:-2}"
+          memory: ${PORTAINER_LIMITS_MEMORY:-64M}
         reservations:
-          memory: ${PORTAINER_RESERVATIONS_MEMORY}
+          memory: ${PORTAINER_RESERVATIONS_MEMORY:-32M}
 
 networks:
   portainer-net:
