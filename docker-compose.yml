@@ -42,6 +42,9 @@ services:
       restart_policy:
         delay: ${PORTAINER_RESTART_POLICY_DELAY}
         window: ${PORTAINER_RESTART_POLICY_WINDOW}
+      placement:
+        constraints:
+          - ${PORTAINER_PLACEMENT_CONSTRAINT_NAME} == ${PORTAINER_PLACEMENT_CONSTRAINT_VALUE}
       resources:
         limits:
           cpus: "${PORTAINER_LIMITS_CPUS}"
