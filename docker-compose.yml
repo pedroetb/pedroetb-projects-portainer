@@ -2,11 +2,11 @@ version: '3.7'
 
 services:
   agent:
-    image: portainer/agent:${AGENT_IMAGE_TAG:-latest}
+    image: ${AGENT_IMAGE_NAME:-portainer/agent}:${AGENT_IMAGE_TAG:-latest}
     environment:
-      - LOG_LEVEL
-      - AGENT_PORT
-      - AGENT_CLUSTER_ADDR=tasks.{{.Service.Name}}
+      LOG_LEVEL:
+      AGENT_PORT:
+      AGENT_CLUSTER_ADDR: tasks.{{.Service.Name}}
     networks:
       - portainer-net
     volumes:
@@ -19,13 +19,14 @@ services:
         window: ${AGENT_RESTART_POLICY_WINDOW:-30s}
       resources:
         limits:
-          cpus: "${AGENT_LIMITS_CPUS:-1}"
-          memory: ${AGENT_LIMITS_MEMORY:-32M}
+          cpus: '${AGENT_LIMITS_CPUS:-0.5}'
+          memory: ${AGENT_LIMITS_MEMORY:-64M}
         reservations:
-          memory: ${AGENT_RESERVATIONS_MEMORY:-16M}
+          cpus: '${AGENT_RESERVATIONS_CPUS:-0.001}'
+          memory: ${AGENT_RESERVATIONS_MEMORY:-32M}
 
   portainer:
-    image: portainer/portainer:${PORTAINER_IMAGE_TAG:-latest}
+    image: ${PORTAINER_IMAGE_NAME:-portainer/portainer}:${PORTAINER_IMAGE_TAG:-latest}
     command: -H tcp://tasks.${STACK_NAME:-portainer}_agent:${AGENT_PORT} --tlsskipverify
     networks:
       - portainer-net
@@ -42,15 +43,13 @@ services:
       restart_policy:
         delay: ${PORTAINER_RESTART_POLICY_DELAY:-10s}
         window: ${PORTAINER_RESTART_POLICY_WINDOW:-1m}
-      placement:
-        constraints:
-          - ${PORTAINER_PLACEMENT_CONSTRAINT:-node.hostname == node}
       resources:
         limits:
-          cpus: "${PORTAINER_LIMITS_CPUS:-2}"
+          cpus: '${PORTAINER_LIMITS_CPUS:-0.5}'
           memory: ${PORTAINER_LIMITS_MEMORY:-64M}
         reservations:
-          memory: ${PORTAINER_RESERVATIONS_MEMORY:-32M}
+          cpus: '${PORTAINER_RESERVATIONS_CPUS:-0.001}'
+          memory: ${PORTAINER_RESERVATIONS_MEMORY:-16M}
 
 networks:
   portainer-net:
@@ -65,3 +64,8 @@ networks:
 volumes:
   portainer-vol:
     name: ${PORTAINER_VOL_NAME:-portainer-vol}
+    driver: local
+    driver_opts:
+      type: ${PORTAINER_VOLUME_TYPE}
+      o: ${PORTAINER_VOLUME_OPTIONS}
+      device: ${PORTAINER_VOLUME_DEVICE}
