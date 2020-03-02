@@ -46,6 +46,7 @@ services:
       update_config:
         delay: ${PORTAINER_UPDATE_DELAY:-1m}
       labels:
+        traefik.enable: 'true'
         traefik.http.routers.portainer.entrypoints: ${TRAEFIK_ENTRYPOINT:-https}
         traefik.http.routers.portainer.tls.certresolver: ${TRAEFIK_CERTRESOLVER:-default}
         traefik.http.routers.portainer.rule: Host(`${TRAEFIK_SUBDOMAIN:-portainer}.${TRAEFIK_DOMAIN}`)
@@ -66,6 +67,7 @@ networks:
 
   traefik-net:
     name: ${TRAEFIK_NET_NAME:-traefik-net}
+    driver: ${TRAEFIK_NET_DRIVER:-overlay}
     external: true
 
 volumes:
