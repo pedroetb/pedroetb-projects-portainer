@@ -72,9 +72,9 @@ networks:
 
 volumes:
   data-vol:
-    name: ${PORTAINER_CE_DATA_VOL_NAME:-portainer-vol}
+    name: ${DATA_VOL_NAME}
     driver: local
     driver_opts:
-      type: ${PORTAINER_CE_DATA_VOL_TYPE}
-      o: ${PORTAINER_CE_DATA_VOL_OPTIONS}
-      device: ${PORTAINER_CE_DATA_VOL_DEVICE}
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTIONS}
+      device: ${DATA_VOL_DEVICE}
